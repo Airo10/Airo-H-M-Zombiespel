@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+
+
+    <script src="http://koda.nu/simple.js">
+        const ctx = canvas.getContext("2d");
+
+
+        var player = { x: random(totalWidth), y: random(totalHeight), speed: 10 };
+        var player2 = { x: random(totalWidth), y: random(totalHeight), speed: 10 };
+
+
+        function update() {
+            clearScreen();
+           
+            picture(player.x, player.y, "img/player.png");
+            // bild för andra spelaren
+            picture(player2.x, player2.y, "img/player.png");
+
+            // för så att man kan röra spelaren med wasd keys
+            if (keyboard.d)
+                player.x += player.speed;
+
+            if (keyboard.a)
+                player.x -= player.speed;
+
+            if (keyboard.w)
+                player.y -= player.speed;
+
+            if (keyboard.s)
+                player.y += player.speed;
+
+            //Andra spelare rör sig med arrow keysen
+            if(keyboard.right)
+            {player2.x += player2.speed}
+            if(keyboard.left)
+            {player2.x -= player2.speed}
+            if(keyboard.up)
+            {player2.y -= player2.speed}
+            if(keyboard.down)
+            {player2.y += player2.speed}
+    }
+    </script>

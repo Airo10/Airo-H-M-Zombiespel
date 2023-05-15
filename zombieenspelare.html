@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+
+
+    <script src="http://koda.nu/simple.js">
+        const ctx = canvas.getContext("2d");
+
+        var zombies = [];
+        var i = 0;
+        var health = [];
+        var player = { x: random(totalWidth), y: random(totalHeight), speed: 10 };
+        let healthBarWidth = 500
+        let backgrundsljud = new Audio("ljud/Minecraft-theme.mp3");
+        let Killsound = new Audio('ljud/kill-sound.mp3');
+        
+
+        //Gör så att zombies spawnar upp till 7
+        while (i < 7) {
+            //Gör så att fler zombies spawnas in, samt definerar health så att zombien kan dö genom bulleten.
+            zombies.push({
+                x: random(totalWidth), y:
+                    random(totalHeight), speed: random(1, 5),
+                    health: 2
+            });
+
+            //Varje zombie som spawnas så ökas i värde +1
+            i += 1;
+
+        }
+
+
+        class Bullet {
+            constructor(x, y, speed, damage) //bulletens x, y vilket är speed och damage värden
+            {
+                this.x = x;
+                this.y = y;
+                this.speed = speed;
+                this.damage = damage;
+
+                // färg, längd höjd på bulleten
+                this.width = 8;
+                this.height = 6;
+                this.color = "lightblue";
+            }
+            drawBullet(ctx) {
+                // gör så att skottet alltid går framåt
+                this.x += this.speed
+                // skottet skapas som en rektangel
+                circle(this.x, this.y, this.width, this.height, this.color);
+            }
+        }
+
+        // Definar skottet
+        var bullets = [];
+        var bulletTimer = 0;
+        var bullet = new Bullet;
+
+        // För kill countern
+        var score = 0;
+
+        function update() {
+            clearScreen();
+            backgrundsljud.play();
+            line(-100, 10, healthBarWidth, 10, 20, "lightblue");
+
+            picture(player.x, player.y, "img/player.png");
+
+            rectangle(totalWidth - 290, 25, 200, 35, "blue")
+            text(totalWidth - 200, 50, 20, "Counter: " + score, "lightblue")
+
+            // för så att man kan röra spelaren med wasd keys
+            if (keyboard.d)
+                player.x += player.speed;
+
+            if (keyboard.a)
+                player.x -= player.speed;
+
+            if (keyboard.w)
+                player.y -= player.speed;
+
+            if (keyboard.s)
+                player.y += player.speed;
+
+
+            // startvärden på bullet
+            var bulletX = player.x + 40;
+            var bulletY = player.y + 22;
+            var bulletSpeed = 30;
+            var bulletDamage = 1;
+            var bulletDelay = 3; // tid mellan varje skott skjuts                
+
+            //Gör så att varje gång man klickar på space pushas skottet ut i en viss tid
+            if (bulletTimer <= 0 && keyboard.space) {
+                bullets.push(new Bullet(bulletX, bulletY, bulletSpeed, bulletDamage))
+                bulletTimer = bulletDelay;
+            }
+            bulletTimer -= 1;
+
+            //I-värdet startar på 0
+            var i = 0;
+
+            //Koden körs medans i-värdet är 7 eller under
+            while (i < zombies.length) {
+
+                //variableln zombie är samma sak som zombie, fast med värdet i
+                var zombie = zombies[i];
+
+                picture(zombie.x, zombie.y, "img/zombie.png");
+
+                if (zombie.x < player.x)
+                    zombie.x += zombie.speed;
+                else
+                    zombie.x -= zombie.speed;
+
+                if (zombie.y < player.y)
+                    zombie.y += zombie.speed;
+                else
+                    zombie.y -= zombie.speed;
+                // Om zombiens avstånd är lägre än 10 så minskas healthen med 5
+                if (distance(player, zombie) < 10) {
+                    healthBarWidth -= 5
+                }
+
+                i += 1;
+            }
+
+            //foreach funktion för bullets
+            bullets.forEach((bullet) => {
+
+                //ritar bullet och går framåt
+                bullet.drawBullet(ctx);
+
+                // om zombiens health är 0 (bulleten träffar zombien) tas zombien bort.
+                for (var i = 0; i < zombies.length; i++){
+                if(zombies[i].health <= 0){
+                    zombies.splice(i, 1);
+                }
+            }
+
+                // När bulleten träffar zombien så dör den / tas bort då zombiens health är 1 och damagen är 1
+                for (var i = 0; i < zombies.length; i++){
+                    if (zombies[i].x < bullet.x &&
+                        zombies[i].x + 40 > bullet.x &&
+                        zombies[i].y < bullet.y &&
+                        zombies[i].y + 40 > bullet.y) {
+                            zombies[i].health -= 1;
+                            const indexB = bullets.indexOf(bullet);
+                            bullets.splice(indexB, 1);
+                        }
+                }
+
+            });
+            // Om zombiens health är 0 (död) så ökas countern med 1 och så spelas kill soundet
+            if(zombie.health <= 0)
+            {
+                Killsound.play();
+                score+=1;
+            }
+    
+            // Om healthbaren för spelaren är under 100 så alertas game over och spelet stoppas
+        if (healthBarWidth <= 100) {
+
+            alert("Game over");
+            stopUpdate();
+        }
+    }
+    </script>
